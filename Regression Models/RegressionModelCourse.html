@@ -1,0 +1,104 @@
+---
+title: "Regression Models Course Project"
+author: "Christian Ibanez"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Executive Summary
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Exploratory Data Analysis 
+
+Load the mtcars dataset
+```{r}
+data(mtcars)
+mtcars
+head(mtcars)
+```
+
+Show summary
+```{r}
+summary(mtcars)
+str(mtcars)
+```
+
+Convert to factors the "vs" and "am"
+```{r}
+mtcars$vs <- as.factor(mtcars$vs)
+mtcars$am <- as.factor(mtcars$am)
+str(mtcars)
+names(mtcars)
+num <- length(mtcars$am)
+```
+
+Set 1 = Automatic and 0 = Manual
+```{r}
+levels(mtcars$am) <- c("Automatic", "Manual")
+names(mtcars)[9]<-paste("Transmission")
+```
+
+
+The interquartile range of Manual Transmission is higher than Automatic Transmission when it comes to Miles per Gallon. Let's test this hypothesis.
+Perform a t.test between the mean of Automatic and Manual for MPG
+(Assuming equal variance,Assuming unequal variance)
+
+
+First we need to split the data
+```{r}
+Auto.Transmission <- subset(mtcars,select=mpg, Transmission == "Automatic")
+Manual.Transmission <- subset(mtcars,select=mpg,Transmission == "Manual")
+```
+
+assuming equal variance between the two groups
+```{r}
+t.test(Auto.Transmission,Manual.Transmission, var.equal = TRUE)
+```
+
+assuming unequal variance between the two groups
+```{r}
+t.test(Auto.Transmission,Manual.Transmission, var.equal = FALSE)
+```
+
+We showed that the difference between the mpg of Automatic and Manual is significant
+
+Calculate the significant diffenrence
+```{r}
+Signif.Diff <- mean(Manual.Transmission$mpg) - mean(Auto.Transmission$mpg)
+Signif.Diff
+```
+
+Do a regression analysis to verify the result of out t.test
+```{r}
+LinReg <- lm(mpg ~ Transmission, data = mtcars)$coeff
+'''
+
+Do a regression analysis to determine the coefficient/s that is/are significant
+```{r}
+MultLinReg <- lm(mpg ~., data = mtcars)
+summary(MultLinReg)
+summary(MultLinReg)$coeff
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,108 @@
+---
+title: "R Markdown Presentation and Plotly"
+author: "Christian Ibañez"
+date: "February 2, 2019"
+output: ioslides_presentation
+---
+
+
+## Contents
+
+- What is Plotly?
+- Plotly Example: Scatterplot
+- Plotly Example: Multi line graph
+- Plotly Example: 3D Scatterplot
+- Plotly Example: Histogram
+- Plotly Example: Boxplot
+- Plotly Example: Heatmap
+- Plotly Example: 3D Surface
+
+
+## What is Plotly?
+
+Plotly is a web application for creating and sharing data visualizations. Plotly can work with several programming languages and applications including R, Python, and Microsoft Excel. We're going to concentrate on creating different graphs with Plotly and sharing those graphs.
+
+
+
+## Plotly Example: Basic Scatterplot
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+library(plotly)
+plot_ly(mtcars, x = mtcars$wt, y = mtcars$mpg, mode = "markers", color = as.factor(mtcars$cyl), size = mtcars$hp)
+```
+
+## Plotly Example: Multi Line Graph
+
+```{r, echo =FALSE, message = FALSE, warning=FALSE}
+
+library(plotly)
+library(tidyr)
+library(dplyr)
+data("EuStockMarkets")
+
+stocks <- as.data.frame(EuStockMarkets) %>%
+        gather(index,price) %>%
+        mutate(time = rep(time(EuStockMarkets),4))
+
+plot_ly(stocks, x =stocks$time, y = stocks$price, color = stocks$index)
+```
+
+## Plotly Example: 3D Scatterplot
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+set.seed(2016-07-21)
+temp <- rnorm(100, mean = 30, sd = 5)
+pressure <- rnorm(100)
+dtime <- 1:100
+plot_ly(x = temp, y = pressure, z = dtime, type = "scatter3d", mode = "markers", color = temp)
+
+```
+
+## Plotly Example: Histogram
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+plot_ly(x = precip, type = "histogram")
+
+```
+
+## Plotly Example: Boxplot
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+plot_ly(iris, y = iris$Petal.Length, color = iris$Species, type = "box")
+```
+
+## Plotly Example: Heatmap
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+terrain1 <- matrix(rnorm(100*100), nrow = 100, ncol = 100)
+plot_ly(z = terrain1, type = "heatmap")
+```
+
+
+## Plotly Example: 3D Surface
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+terrain2 <- matrix(sort(rnorm(100*100)), nrow = 100, ncol = 100)
+plot_ly(z = terrain2, type = "surface")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

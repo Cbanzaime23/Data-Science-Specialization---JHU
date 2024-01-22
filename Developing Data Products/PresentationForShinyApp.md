@@ -1,0 +1,45 @@
+Presentation for Histogram Simulator
+========================================================
+author: Christian Ibanez
+date: February 9, 2019
+autosize: true
+
+Contents
+========================================================
+
+- Introduction
+- The Goal, Try the app
+- How it works?
+
+
+Introduction
+========================================================
+
+
+This presentation is part of the Developing Data Products Coursera.org course project submission.
+
+It is an R Presentation generated with RStudio.
+
+The Shiny app pitched by this presentation is at https://codingforcomputing.shinyapps.io/histogramcourseproject/
+
+The Shiny app source code is available at https://github.com/Cbanzaime23/ddp-Course-Project
+
+The Goal
+========================================================
+The aim of this histogram simulator is to have a view of the general shape of the distribution of random numbers
+
+Try the app:
+https://codingforcomputing.shinyapps.io/histogramcourseproject/
+
+
+How it works?
+========================================================
+
+
+```r
+#In the shiny app, the user can change from rnorm, runif or rexp, also the user can change the number of bins and the number of random numbers
+x <- rnorm(1000)
+hist(x, breaks = 50 ,col = "darkred", main = "Histogram of Random Numbers", ylab = "Frequency", xlab = "Random Numbers", border = 0)
+```
+
+![plot of chunk unnamed-chunk-1](PresentationForShinyApp-figure/unnamed-chunk-1-1.png)

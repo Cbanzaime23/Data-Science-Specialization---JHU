@@ -1,0 +1,121 @@
+---
+title: "Regression Models Course Project"
+author: "Christian Ibanez"
+date: "October 22, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+This report answers the following questions:
+"Is an automatic or manual transmission better for MPG?"
+"Quantify the MPG difference between automatic and manual transmissions"
+
+The result of the analysis are the following:
+The difference of 7.24 between the Automatic and Manual in terms of mpg is statistically significant.
+
+Base on the analysis transmission, disp, hp and wt has high correlation to mpg and  can be the major predictor variable for mpg
+
+
+## Exploratory Data Analysis 
+
+Show the data structure of mtcars
+```{r}
+str(mtcars)
+```
+
+Convert to factors the "vs" and "am"
+```{r}
+mtcars$vs <- as.factor(mtcars$vs)
+mtcars$am <- as.factor(mtcars$am)
+num <- length(mtcars$am)
+```
+
+Set 1 = Automatic and 0 = Manual
+```{r}
+levels(mtcars$am) <- c("Automatic", "Manual")
+names(mtcars)[9]<-paste("Transmission")
+```
+
+The interquartile range of Manual Transmission is higher than Automatic Transmission when it comes to Miles per Gallon (As shown in the Appendix I). Let's test this hypothesis.
+
+##Inferential Data Analysis
+
+Perform a t.test between the mean of Automatic and Manual for MPG
+(Assuming equal variance,Assuming unequal variance)
+
+
+First we need to split the data
+```{r}
+Auto.Transmission <- subset(mtcars,select=mpg, Transmission == "Automatic")
+Manual.Transmission <- subset(mtcars,select=mpg,Transmission == "Manual")
+```
+
+Assuming equal variance between the two groups
+```{r}
+t.test(Auto.Transmission,Manual.Transmission, var.equal = TRUE)
+```
+
+Assuming unequal variance between the two groups
+```{r}
+t.test(Auto.Transmission,Manual.Transmission, var.equal = FALSE)
+```
+
+We showed that the difference between the mpg of Automatic and Manual is significant
+Calculate the significant diffenrence
+```{r}
+Signif.Diff <- mean(Manual.Transmission$mpg) - mean(Auto.Transmission$mpg)
+Signif.Diff
+```
+
+##Regression Analysis
+
+Do a regression analysis to verify the result of our t.test
+```{r}
+LinReg <- lm(mpg ~ Transmission, data = mtcars)
+```
+
+Explore the data using the pairs plots. Based on the graph (Appendix II) we notice that disp, hp,wt are correlated to mpg. We will create a Multi Linear Regression for mpg that accounts the said 3 variable
+
+```{r}
+MultLinReg1 <- lm(mpg ~ disp + hp + wt, data = mtcars)
+```
+
+And another Multi Linear Regression that includes Transmission
+```{r}
+MultLinReg2 <- lm(mpg ~ Transmission + disp + hp + wt, data = mtcars)
+```
+
+Use ANOVA to compare the 3 regression models
+```{r}
+anova(LinReg, MultLinReg1, MultLinReg2)
+```
+
+Our Analysis of Variance shows that MultiLinReg1 is better than the other 2. 
+
+
+## Appendix
+
+#I.
+```{r}
+library("ggplot2")
+ggplot(aes(x = Transmission , y = mpg), data = mtcars) + geom_boxplot(aes(fill = Transmission)) + xlab("Transmission Type") + ylab("Miles per Gallon") + ggtitle("The IQR of Manual is higher than Automatic interms of MPG")
+```
+
+#II.
+```{r}
+pairs(mpg ~ ., data = mtcars)
+```
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,10 @@
+Hi Coursera Team,
+My name is Christian Ibanez and I'm currently working as a Data Scientist for a large Call Centre Company in the Philippines. My annual income right now as a Data Scientist is around the median salary for a Data Scientist here in PH, but in my current situation, I'm supporting 3 families with my current income that is why even though my annual income is high, I don't have enough money to spend on Coursera course for now. I'm eager to complete this course as I still need to further enhance my data science skills even though I'm already a Data Scientist.
+In this course, I already made some progress and already completed other courses under this Johns Hopkins Data Science Specialization. The reason I already completed the other courses in this specialization is that I got a sponsorship from the Department of Science and Technology here in PH way back in 2017.
+ 
+I hope you can consider me for financial aid as I want to complete this course to enhance my Data Science skills. Thank you
+
+
+
+Exploratory Data Analysis is one of the core skills of a Data Scientist and one of the statistical tools that I'm applying to my work and continuously improving. Right now I already applied Exploratory Data Analysis with my Diagnostic Analysis, for pre modelling part of Predictive Modelling/ Machine Learning Modelling and any kind of insight generation tasks. 
+Even though I already applied it to some of my Data Science Projects, I know I still need to improve in this area. I think one reason Exploratory Data Analysis is a bit complicated is it is both Art and Science, there is not a strict rule of what you should be doing but the goal is to find a useful relationship where we can get insights and recommendations. With this course, I think this EDA course by John Hopkins can help me push further my Exploratory Data Analysis Skills, gain more experience in drilling through data, and to be able to effectively communicate my EDA insights

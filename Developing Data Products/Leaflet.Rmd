@@ -1,0 +1,24 @@
+---
+title: "Developing Data Products Course Week 2: Leaflet Assignment"
+author: "Christian Ibañez"
+date: "January 27, 2019"
+output: html_document
+---
+
+### Map of Manila with markers to highlight Sta Mesa and Sta Ana Manila
+
+```{r}
+#install.packages("leaflet")
+library(leaflet)
+
+#Sta Ana and Sta Mesa Manila
+df <- data.frame(lat = c(14.582636, 14.600891), lng = c(121.013441,121.01033))
+
+#Sta Ana, Manila and Sta Mesa, Manila
+df %>%
+        leaflet() %>%
+        addTiles() %>%
+        addMarkers()
+```
+
+### Pan on the map to navigate

@@ -1,0 +1,275 @@
+---
+title: "Practical Machine Learning Course Project"
+author: "Christian Ibañez"
+date: "December 10, 2018"
+output: html_document
+---
+
+## Goal
+"Predict the manner in which they did the exercise"
+
+
+### Question
+In the aforementioned study, six participants participated in a dumbell lifting exercise five different ways. The five ways, as described in the study, were "exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E). Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes."
+
+By processing data gathered from accelerometers on the belt, forearm, arm, and dumbell of the participants in a machine learning algorithm, the question is can the appropriate activity quality (class A-E) be predicted?
+
+### Input Data
+```{r}
+#INPUT DATA
+
+
+#Load Libraries
+library(AppliedPredictiveModeling)
+library(caret)
+library(rattle)
+library(rpart.plot)
+library(randomForest)
+
+```
+
+##Import Data
+
+Download Training Set
+```{r}
+URL_Training <-"https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+Training_CSV <- "pml-training.csv"
+download.file(url=URL_Training, destfile=Training_CSV, method="curl")
+
+```
+
+Download Testing Set
+```{r}
+URL_Testing <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+Testing_CSV <- "pml-testing.csv"
+download.file(url=URL_Testing, destfile=Testing_CSV, method="curl")
+
+```
+
+##Import Training Set
+```{r}
+DF_Training <- read.csv(Training_CSV, na.strings=c("NA",""), header=TRUE)
+Colnames_Train <- colnames(DF_Training)
+```
+
+##Import Testing Set
+```{r}
+DF_Testing <- read.csv(Testing_CSV, na.strings=c("NA",""), header=TRUE)
+Colnames_Test <- colnames(DF_Testing)
+```
+
+##Verify the column names
+```{r}
+all.equal(Colnames_Train[1:length(Colnames_Train)-1], Colnames_Test[1:length(Colnames_Train)-1])
+```
+
+## Data Cleaning and Splitting
+
+Count the number of non-NAs in each col.
+```{r}
+nonNAs <- function(x) {
+        as.vector(apply(x, 2, function(x) length(which(!is.na(x)))))
+}
+
+```
+
+Build vector of missing data or NA columns to drop.
+```{r}
+NonNACounts <- nonNAs(DF_Training)
+Drop <- c()
+for (count in 1:length(NonNACounts)) {
+        if (NonNACounts[count] < nrow(DF_Training)) {
+                Drop <- c(Drop, Colnames_Train[count])
+        }
+}
+```
+
+Drop N/A data and the first 7 columns
+```{r}
+DF_Training <- DF_Training[,!(names(DF_Training) %in% Drop)]
+DF_Training <- DF_Training[,8:length(colnames(DF_Training))]
+
+DF_Testing <- DF_Testing[,!(names(DF_Testing) %in% Drop)]
+DF_Testing <- DF_Testing[,8:length(colnames(DF_Testing))]
+
+```
+
+Show remaining columns
+```{r}
+colnames(DF_Training)
+colnames(DF_Testing)
+```
+
+Verify that the column names (excluding classe and problem_id) are identical in the training and test set.
+```{r}
+all.equal(colnames(DF_Training)[1:length(colnames(DF_Training))-1], colnames(DF_Testing)[1:length(colnames(DF_Testing))-1])
+```
+
+Check for features that has low variability
+```{r}
+nsv <- nearZeroVar(DF_Training, saveMetrics=TRUE)
+nsv$nzv == FALSE
+```
+No features in the training set that has near zero variability
+
+
+## Divide Training Set
+
+Divide the entire Training set into 4 roughly equal sets
+And split each of them into 2(60% Training and 40% Testing, 3 to 2)
+
+p = 0.25
+```{r}
+set.seed(666)
+Training_Subset <- createDataPartition(y=DF_Training$classe, p=0.25, list=FALSE)
+DF_Subset1 <- DF_Training[Training_Subset,]
+DF_Other <- DF_Training[-Training_Subset,]
+```
+
+p = 0.33
+```{r}
+set.seed(666)
+Training_Subset <- createDataPartition(y=DF_Other$classe, p=0.33, list=FALSE)
+DF_Subset2 <- DF_Other[Training_Subset,]
+DF_Other <- DF_Other[-Training_Subset,]
+```
+
+p = 0.5
+```{r}
+set.seed(666)
+Training_Subset <- createDataPartition(y=DF_Other$classe, p=0.5, list=FALSE)
+DF_Subset3 <- DF_Other[Training_Subset,]
+DF_Subset4 <- DF_Other[-Training_Subset,]
+```
+We have now splitted the training set into 4 set
+
+
+Divide each of these 4 sets into training (60%) and test (40%) sets.
+```{r}
+#Training and Testing Set 1
+set.seed(666)
+Train <- createDataPartition(y=DF_Subset1$classe, p=0.6, list=FALSE)
+DF_Subset_Training1 <- DF_Subset1[Train,]
+DF_Subset_Testing1 <- DF_Subset1[-Train,]
+```
+
+```{r}
+#Training and Testing Set 2
+set.seed(666)
+Train <- createDataPartition(y=DF_Subset2$classe, p=0.6, list=FALSE)
+DF_Subset_Training2 <- DF_Subset2[Train,]
+DF_Subset_Testing2 <- DF_Subset2[-Train,]
+```
+
+```{r}
+#Training and Testing Set 3
+set.seed(666)
+Train <- createDataPartition(y=DF_Subset3$classe, p=0.6, list=FALSE)
+DF_Subset_Training3 <- DF_Subset3[Train,]
+DF_Subset_Testing3 <- DF_Subset3[-Train,]
+```
+
+```{r}
+#Training and Testing Set 4
+set.seed(666)
+Train <- createDataPartition(y=DF_Subset4$classe, p=0.6, list=FALSE)
+DF_Subset_Training4 <- DF_Subset4[Train,]
+DF_Subset_Testing4 <- DF_Subset4[-Train,]
+```
+
+Checking
+
+```{r}
+Total <-length(DF_Subset_Training4$classe) + length(DF_Subset_Training3$classe) + length(DF_Subset_Training2$classe) + length(DF_Subset_Training1$classe) +
+        length(DF_Subset_Testing1$classe) + length(DF_Subset_Testing2$classe) + length(DF_Subset_Testing3$classe) + length(DF_Subset_Testing4$classe)
+
+
+#Check
+length(DF_Training$classe) == Total
+
+```
+
+##Random Forest Algorithm
+
+Train on training set 1
+```{r}
+set.seed(666)
+ModelFit1 <- train(classe ~ ., method="rf", preProcess=c("center", "scale"), trControl=trainControl(method = "cv", number = 4), data=DF_Subset_Testing1)
+
+print(ModelFit1, digits=3)
+
+# Run against the corresponding test set
+predictions <- predict(ModelFit1, newdata=DF_Subset_Training1)
+print(confusionMatrix(predictions, DF_Subset_Training1$classe), digits=4)
+
+# Run against 20 testing set provided
+print(predict(ModelFit1, newdata=DF_Testing))
+
+```
+
+Train on training set 2
+```{r}
+set.seed(666)
+ModelFit2 <- train(classe ~ ., method="rf", preProcess=c("center", "scale"), trControl=trainControl(method = "cv", number = 4), data=DF_Subset_Testing2)
+
+print(ModelFit2, digits=3)
+
+# Run against the corresponding test set
+predictions <- predict(ModelFit2, newdata=DF_Subset_Training2)
+print(confusionMatrix(predictions, DF_Subset_Training2$classe), digits=4)
+
+# Run against 20 testing set provided
+print(predict(ModelFit2, newdata=DF_Testing))
+
+```
+
+Train on training set 3
+```{r}
+set.seed(666)
+ModelFit3 <- train(classe ~ ., method="rf", preProcess=c("center", "scale"), trControl=trainControl(method = "cv", number = 4), data=DF_Subset_Testing3)
+
+print(ModelFit3, digits=3)
+
+# Run against the corresponding test set
+predictions <- predict(ModelFit3, newdata=DF_Subset_Training3)
+print(confusionMatrix(predictions, DF_Subset_Training3$classe), digits=4)
+
+# Run against 20 testing set provided
+print(predict(ModelFit3, newdata=DF_Testing))
+
+```
+
+
+Train on training set 4
+```{r}
+set.seed(666)
+ModelFit4 <- train(classe ~ ., method="rf", preProcess=c("center", "scale"), trControl=trainControl(method = "cv", number = 4), data=DF_Subset_Testing4)
+
+print(ModelFit4, digits=3)
+
+# Run against the corresponding test set
+predictions <- predict(ModelFit4, newdata=DF_Subset_Training4)
+print(confusionMatrix(predictions, DF_Subset_Training4$classe), digits=4)
+
+# Run against 20 testing set provided
+#This output will be use in the prediction quiz
+print(predict(ModelFit4, newdata=DF_Testing))
+
+```
+
+##Conclusion
+
+Random Forest with preprocessing and cross validation was able to predict with 0.03585 out of sample error base on the average of 4 pairs of Training and Testing Set.
+
+```{r}
+TestingSet1OOSE <- 1 - .9714
+TestingSet2OOSE <- 1 - .9634
+TestingSet3OOSE <- 1 - .9655
+TestingSet4OOSE <- 1 - .9563
+
+MeanOOSE <- mean(c(TestingSet1OOSE, TestingSet2OOSE, TestingSet3OOSE, TestingSet4OOSE))
+
+#Out of Sample Error for Random forest
+MeanOOSE
+```
+

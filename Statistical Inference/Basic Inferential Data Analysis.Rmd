@@ -1,0 +1,105 @@
+---
+title: "Basic Inferential Data Analysis: Tooth Growth"
+author: "Christian Ibanez"
+date: "August 28, 2018"
+output: html_document
+---
+Now in the second portion of the project, we're going to analyze the ToothGrowth data in the R datasets package.
+
+Load the ToothGrowth data and perform some basic exploratory data analyses
+Provide a basic summary of the data.
+Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. (Only use the techniques from class, even if there's other approaches worth considering)
+State your conclusions and the assumptions needed for your conclusions.
+
+Load dataset
+```{r}
+library(datasets)
+data("ToothGrowth")
+```
+
+Number of rows of dataset
+```{r}
+nrow(ToothGrowth)
+```
+
+View
+```{r}
+View(ToothGrowth)
+```
+
+Convert variable dose from numeric to factor
+```{r}
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+```
+
+Look at the dataset variables after conversion
+```{r}
+str(ToothGrowth)
+```
+
+Summary statistics
+```{r}
+summary(ToothGrowth)
+```
+
+Split of cases between different dose levels and delivery methods
+```{r}
+table( ToothGrowth$supp,ToothGrowth$dose)
+```
+
+Use confidence interval and hypothesis tests to compare tooth growth by supp and dose
+Check for group difference due to different supplement type
+
+```{r}
+#assuming unequal variance between the two groups
+t.test(len ~ supp, data = ToothGrowth)
+
+#assuming equal variance between the two groups
+t.test(len ~ supp, data = ToothGrowth, var.equal = TRUE)
+#p is low == no statistical significant difference
+```
+
+Create 3 sub-groups asa per dose level pair
+```{r}
+ToothGrowth.dose_0.5_1 <- subset(ToothGrowth, dose %in% c(0.5, 1.0))
+ToothGrowth.dose_1_2 <- subset(ToothGrowth, dose %in% c(1.0, 2.0))
+ToothGrowth.dose_0.5_2 <- subset(ToothGrowth, dose %in% c(0.5, 2.0))
+```
+
+ASSUMING UNEQUAL VARIANCE
+
+```{r}
+#Check for group difference,dose levels (0.5, 1)
+#assuming unequal variances between 2 groups
+t.test(len ~ dose, data = ToothGrowth.dose_0.5_1)
+# Check for group differences,dose levels (0.5, 2)
+# assuming unequal variances between the two groups
+t.test(len ~ dose, data = ToothGrowth.dose_0.5_2)
+# Check for group differences,dose levels (1, 2)
+# assuming unequal variances between the two groups
+t.test(len ~ dose, data = ToothGrowth.dose_1_2)
+```
+
+
+ASSUMING EQUAL VARIANCE
+```{r}
+#Check for group difference, dose levels (0.5, 1)
+#assuming equal variances between 2 groups
+t.test(len ~ dose, data = ToothGrowth.dose_0.5_1, var.equal = TRUE)
+# Check for group differences, dose levels (0.5, 2)
+# assuming equal variances between the two groups
+t.test(len ~ dose, data = ToothGrowth.dose_0.5_2, var.equal = TRUE)
+# Check for group differences, dose levels (1, 2)
+# assuming equal variances between the two groups
+t.test(len ~ dose, data = ToothGrowth.dose_1_2, var.equal = TRUE)
+```
+
+
+Conclusion:
+The type of supplement delivery doesn't have a significant effect on tooth growth but the amount of dosage of Vitamin C has a significant effect on tooth growthh
+
+Assumption:
+Tooth growth data follows a normal distribution
+
+
+
